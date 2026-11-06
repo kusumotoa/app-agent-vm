@@ -1,0 +1,92 @@
+#!/bin/bash
+#MISE description="いま何が動いているかを出す"
+set -uo pipefail
+
+ROOT="${MISE_PROJECT_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+# shellcheck source=../config.sh
+. "$ROOT/config.sh"
+
+VM="${AAV_VM:-$VM_NAME}"
+# shellcheck source=../lib/vm.sh
+. "$ROOT/lib/vm.sh"
+# shellcheck source=../lib/tokens.sh
+. "$ROOT/lib/tokens.sh"
+# shellcheck source=../lib/secrets.sh
+. "$ROOT/lib/secrets.sh"
+# shellcheck source=../lib/emulator.sh
+. "$ROOT/lib/emulator.sh"
+
+running() { pgrep -f "$1" >/dev/null 2>&1; }
+
+echo "ホスト"
+running 'mise-tasks/claude' && echo "  ✓ claude タスク"       || echo "  - claude タスクは動いていません"
+running 'netpolicy' && echo "  ✓ 通信先のポリシー更新" || echo "  - ポリシー更新は動いていません"
+
+if [ "${#ANDROID_AVDS[@]}" -gt 0 ]; then
+  echo
+  echo "Android"
+  EMUS=$(wanted_emulators)
+  WANT=$(emulator_gid)
+  for name in "${ANDROID_AVDS[@]}"; do
+    set -- $(printf '%s\n' "$EMUS" | awk -v n="$name" '$3 == n {print $1, $2; exit}')
+    if [ $# -eq 0 ]; then
+      printf '  - %-16s 動いていません\n' "$name"
+    elif [ -z "$WANT" ]; then
+      printf '  ? %-16s ポート %s。グループ %s がありません（mise run android-user）\n' "$name" "$1" "$EMU_GROUP"
+    elif [ "$2" != "$WANT" ]; then
+      printf '  ! %-16s ポート %s。%s の外なので絞られていません\n' "$name" "$1" "$EMU_GROUP"
+    else
+      printf '  ✓ %-16s ポート %s\n' "$name" "$1"
+    fi
+  done
+  emulator_ssh_pids >/dev/null && echo "  ✓ トンネル" || echo "  - トンネルは張られていません"
+  policy=""; at=""
+  [ -s "$EMU_STATE_FILE" ] && read -r policy at < "$EMU_STATE_FILE"
+  if [ -z "$EMUS" ] && [ -z "$policy" ]; then
+    echo "  - エミュレータが動いていないため確認していません"
+  elif [ -z "$policy" ] || [ -z "$at" ]; then
+    echo "  - 絞っていません"
+  else
+    ago=$(( ($(date +%s) - at) / 60 ))
+    tag=""
+    [ -n "$EMUS" ] || tag="。エミュレータは動いていません"
+    case "$policy" in
+      restricted) printf '  ✓ 通信を絞っています（%d 分前に確認）%s\n' "$ago" "$tag" ;;
+      narrow)     printf '  ! 絞りすぎです。%s に届きません（%d 分前）%s\n' "$EMU_ALLOWED" "$ago" "$tag" ;;
+      open)       printf '  ! 絞れていません。/etc/pf.conf の anchor を確かめてください（%d 分前）%s\n' "$ago" "$tag" ;;
+      *)          printf '  ? 確かめられませんでした（%d 分前）%s\n' "$ago" "$tag" ;;
+    esac
+  fi
+fi
+
+echo
+state=$(vm_state "$VM")
+echo "VM '${VM}': ${state:-見つかりません}"
+
+if [ "$state" = running ]; then
+  echo "  この VM の中"
+  tart exec "$VM" /bin/bash -lc '
+    if pgrep -x claude >/dev/null; then echo "    ✓ claude"; else echo "    - claude は動いていません"; fi
+    echo "    claude: $(claude --version 2>/dev/null)"' 2>/dev/null
+  if verify_mcp_headless "$VM" 2>/dev/null; then
+    echo "    ✓ Xcode MCP"
+  else
+    echo "    - Xcode MCP のヘッドレスが無効です"
+  fi
+  tart exec "$VM" /bin/bash -lc '
+    echo "    スキル: $(ls ~/.claude/skills 2>/dev/null | tr "\n" " ")"
+    for d in ~/work/*/; do
+      [ -d "$d" ] || continue
+      case "${d%/}" in */refs|*/.cache) continue ;; esac
+      echo "    ${d%/}: $(git -C "$d" branch --show-current 2>/dev/null)"
+    done
+  ' 2>/dev/null
+fi
+
+echo
+echo "シークレット"
+if out=$(verify_tokens 2>&1); then
+  echo "  ✓ 使えます"
+else
+  printf '%s\n' "$out"
+fi

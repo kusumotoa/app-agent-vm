@@ -1,0 +1,18 @@
+[settings]
+minimum_release_age = "7d"
+
+[tools]
+"aqua:hashicorp/packer"     = "latest"
+"aqua:openai/tart"          = "latest"
+"github:openai/softnet"     = "latest"
+
+[bootstrap.packages]
+"brew:gh" = "latest"
+
+[tasks.build]
+description = "VM のイメージを作る"
+run = [
+  "bash -c '. ./config.sh; . ./lib/vm.sh; verify_no_vm \"$VM_NAME\"'",
+  "packer init tart.pkr.hcl",
+  "bash -c '. ./config.sh; packer build -var vm_name=\"$VM_NAME\" -var base_image=\"$BASE_IMAGE\" -var cpu_count=\"$VM_CPU\" -var memory_gb=\"$VM_MEMORY_GB\" tart.pkr.hcl'",
+]

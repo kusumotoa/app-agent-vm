@@ -1,0 +1,5 @@
+.shared/
+.allow
+config.local.sh
+__pycache__/
+skills/device-interaction/

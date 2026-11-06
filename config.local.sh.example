@@ -1,0 +1,15 @@
+# 個人の設定。git 管理しない。config.sh を上書きする。
+
+# VM 名。キーチェーンと署名鍵もこの名前で分かれる。
+VM_NAME="app-agent-vm"
+
+# 書き込む先と読むだけの先は config.sh にある。置き換えるなら REPOS=(...) と書き、足すだけなら REPOS+=(...)。
+# REPOS+=("owner/openapi")
+# REFS+=("owner/shared-lib")
+
+# 通信を足すときは ALLOW+=(...)。
+# ALLOW+=("example.com")
+
+# Android を触るなら、エージェント用の AVD を先に作って名前を書く。自分用とは分ける。
+# ここに書いたものだけを VM に渡す。
+# ANDROID_AVDS=("Pixel_10_Pro" "Pixel_Tablet")

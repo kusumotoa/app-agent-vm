@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+#MISE description="ALLOW の名前の宛先を、VM からホスト経由で通す（claude が呼ぶ）"
+#MISE hide=true
+"""VM の 127.0.0.1:443 に来た接続を、ホストが本当の宛先へ繋ぐ。名前を渡した宛先だけ。
+
+    relay <VM 名> <宛先の名前>...
+"""
+import os
+import socket
+import subprocess
+import sys
+import threading
+from queue import Queue
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, "lib"))
+from relay import Peer  # noqa: E402
+
+
+class Exit(Peer):
+    def __init__(self, proc, names):
+        super().__init__(proc.stdout, proc.stdin)
+        self.names, self.queues = names, {}
+
+    def connect(self, number, name, queue):
+        sock = None
+        if name not in self.names:
+            print(f"[relay] 一覧にないので繋ぎません: {name}", file=sys.stderr, flush=True)
+        else:
+            try:
+                sock = socket.create_connection((name, 443), timeout=15)
+                sock.settimeout(None)
+            except OSError as error:
+                print(f"[relay] {name} へ繋げません: {error}", file=sys.stderr, flush=True)
+        if sock is None:
+            self.send(b"C", number)
+            self.queues.pop(number, None)
+            return
+        with self.lock:
+            self.socks[number] = sock
+        threading.Thread(target=self.pump, args=(number, sock), daemon=True).start()
+        # 繋ぐ間に届く最初の枠を溜めておく。捨てると TLS の握手が始まらない。
+        while True:
+            kind, body = queue.get()
+            self.deliver(kind, number, sock, body)
+            if kind == b"C":
+                self.queues.pop(number, None)
+                return
+
+    def serve(self):
+        for kind, number, body in self.frames():
+            if kind == b"O":
+                queue = self.queues[number] = Queue()
+                name = body.decode("ascii", "replace").lower()
+                threading.Thread(target=self.connect, args=(number, name, queue), daemon=True).start()
+            elif number in self.queues:
+                self.queues[number].put((kind, body))
+
+
+def main():
+    vm, names = sys.argv[1], {name.lower() for name in sys.argv[2:]}
+    with open(os.path.join(ROOT, "lib", "relay.py"), encoding="utf-8") as handle:
+        code = handle.read()
+    proc = subprocess.Popen(["tart", "exec", "-i", vm, "sudo", "python3", "-c", code],
+                            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    Exit(proc, names).serve()
+    proc.terminate()
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

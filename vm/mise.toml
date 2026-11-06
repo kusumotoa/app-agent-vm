@@ -1,0 +1,11 @@
+[tasks.xcode-mcp]
+description = "Xcode の MCP を開ける"
+run = [
+  "mkdir -p ~/work",
+  "sudo \"$(xcode-select -p)/usr/bin/mcp-server\" enable --unsafe-always-allow-all-agents",
+  "sudo \"$(xcode-select -p)/usr/bin/mcp-server\" allow-folder ~/work --always",
+]
+
+[tasks.bootstrap]
+description = "VM の中を組み立てる"
+depends = ["xcode-mcp"]

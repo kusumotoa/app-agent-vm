@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 330" width="880" height="330" role="img" aria-label="宛先を足すとどこを通って VM に効くか">
+  <style>
+    .bg    { fill: #ffffff; }
+    .panel { fill: #f6f8fa; stroke: #d0d7de; }
+    .on    { fill: #ddf4e4; stroke: #4a9c68; }
+    .off   { fill: #ffebe9; stroke: #cf222e; }
+    .mb    { fill: #1f2328; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; font-weight: 600; }
+    .dim   { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 12px; }
+    .hd    { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 12px; font-weight: 600; }
+    .no    { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 11.5px; }
+    .arrow { fill: none; stroke: #8c959f; stroke-width: 1.4; }
+    .ah    { fill: #8c959f; }
+    @media (prefers-color-scheme: dark) {
+      .bg    { fill: #0d1117; }
+      .panel { fill: #161b22; stroke: #30363d; }
+      .on    { fill: #16301f; stroke: #4a9c68; }
+      .off   { fill: #3a1417; stroke: #cf222e; }
+      .mb    { fill: #e6edf3; }
+      .dim, .hd, .no { fill: #8b949e; }
+    }
+  </style>
+  <defs>
+    <marker id="a1" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <polygon class="ah" points="0 0, 8 3, 0 6"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="880" height="330"/>
+
+  <rect class="on" x="16" y="24" width="250" height="52" rx="8"/>
+  <text class="mb"  x="36" y="46">config.d/allow.sh の ALLOW</text>
+  <text class="no"  x="36" y="65">ドメイン名か CIDR か @host</text>
+
+  <path class="arrow" d="M266,50 L322,50" marker-end="url(#a1)"/>
+
+  <rect class="panel" x="322" y="24" width="230" height="52" rx="8"/>
+  <text class="mb"  x="342" y="46">netpolicy</text>
+  <text class="no"  x="342" y="65">名前を解決して CIDR にする</text>
+
+  <path class="arrow" d="M552,50 L608,50" marker-end="url(#a1)"/>
+
+  <rect class="panel" x="608" y="24" width="256" height="52" rx="8"/>
+  <text class="mb"  x="628" y="46">softnet</text>
+  <text class="no"  x="628" y="65">VM の外。中から迂回できない</text>
+
+  <text class="no" x="16" y="100">起動し直さずに入れ替わる（POLICY_INTERVAL ごとに解決し直す）。既定は全拒否。</text>
+
+  <text class="hd" x="24" y="136">実測。追加が要るかどうか</text>
+
+  <rect class="on" x="16" y="148" width="848" height="40" rx="8"/>
+  <text class="mb"  x="40" y="173">Swift Package Manager</text>
+  <text class="dim" x="300" y="173">そのまま通る。@github だけで足りる</text>
+
+  <rect class="off" x="16" y="196" width="848" height="40" rx="8"/>
+  <text class="mb"  x="40" y="221">CocoaPods</text>
+  <text class="dim" x="300" y="221">cdn.cocoapods.org を足す</text>
+
+  <rect class="off" x="16" y="244" width="848" height="40" rx="8"/>
+  <text class="mb"  x="40" y="269">GitHub のリリース資産</text>
+  <text class="dim" x="300" y="269">codeload.github.com を足す。@github に入っていない</text>
+
+  <text class="no" x="16" y="312">足したら mise run stop と mise run start。</text>
+</svg>

@@ -1,0 +1,22 @@
+#!/bin/bash
+#MISE description="VM が引いた名前を出す（遮断された宛先を探す）。引数は秒数、既定 30"
+set -euo pipefail
+
+ROOT="${MISE_PROJECT_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+# shellcheck source=../config.sh
+. "$ROOT/config.sh"
+
+VM="${AAV_VM:-$VM_NAME}"
+SEC="${1:-30}"
+
+echo "${SEC} 秒みます。いま詰まる操作を走らせてください。"
+echo "一度引いた名前はキャッシュされて出ません。"
+
+tart exec "$VM" /bin/bash -lc "
+  sudo pkill -f 'tcpdump -i any' 2>/dev/null
+  sudo tcpdump -i any -n 'port 53' > /tmp/lookups.txt 2>/dev/null &
+  sleep $SEC
+  sudo pkill -f 'tcpdump -i any' 2>/dev/null
+  awk '/ A\\? /{ for (i = 1; i <= NF; i++) if (\$i == \"A?\") { n = \$(i + 1); sub(/\\.\$/, \"\", n); if (!seen[n]++) print n } }' /tmp/lookups.txt
+  rm -f /tmp/lookups.txt
+"

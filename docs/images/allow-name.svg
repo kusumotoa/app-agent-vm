@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 120" width="880" height="120" role="img" aria-label="ALLOW に名前で書いた宛先が、ホストを経由して届くまで">
+  <style>
+    .bg    { fill: #ffffff; }
+    .panel { fill: #f6f8fa; stroke: #d0d7de; }
+    .on    { fill: #ddf4e4; stroke: #4a9c68; }
+    .off   { fill: #ffebe9; stroke: #cf222e; }
+    .mb    { fill: #1f2328; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; font-weight: 600; }
+    .dim   { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 12px; }
+    .hd    { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 12px; font-weight: 600; }
+    .no    { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 11.5px; }
+    .x     { fill: #cf222e; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 22px; font-weight: 700; }
+    .arrow { fill: none; stroke: #8c959f; stroke-width: 1.4; }
+    .stop  { fill: none; stroke: #cf222e; stroke-width: 1.4; stroke-dasharray: 4 3; }
+    .ah    { fill: #8c959f; }
+    @media (prefers-color-scheme: dark) {
+      .bg    { fill: #0d1117; }
+      .panel { fill: #161b22; stroke: #30363d; }
+      .on    { fill: #16301f; stroke: #4a9c68; }
+      .off   { fill: #3a1417; stroke: #cf222e; }
+      .mb    { fill: #e6edf3; }
+      .dim, .hd, .no { fill: #8b949e; }
+    }
+  </style>
+  <defs>
+    <marker id="a1" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <polygon class="ah" points="0 0, 8 3, 0 6"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="880" height="120"/>
+
+  <text class="hd" x="24" y="20">ALLOW に名前で書いた宛先</text>
+
+  <rect class="panel" x="16" y="32" width="180" height="52" rx="8"/>
+  <text class="mb"  x="36" y="54">VM のアプリ</text>
+  <text class="no"  x="36" y="73">api.example.com</text>
+
+  <path class="arrow" d="M196,58 L218,58" marker-end="url(#a1)"/>
+
+  <rect class="on" x="218" y="32" width="250" height="52" rx="8"/>
+  <text class="mb"  x="238" y="54">受け口（VM 内）</text>
+  <text class="no"  x="238" y="73">127.0.0.1:443 で宛先を読む</text>
+
+  <path class="arrow" d="M468,58 L490,58" marker-end="url(#a1)"/>
+
+  <rect class="on" x="490" y="32" width="250" height="52" rx="8"/>
+  <text class="mb"  x="510" y="54">中継（ホスト）</text>
+  <text class="no"  x="510" y="73">ALLOW の名前だけ繋ぐ</text>
+
+  <path class="arrow" d="M740,58 L762,58" marker-end="url(#a1)"/>
+
+  <rect class="panel" x="762" y="32" width="102" height="52" rx="8"/>
+  <text class="mb"  x="780" y="54">宛先</text>
+  <text class="no"  x="780" y="73">本当の宛先</text>
+
+  <text class="no" x="218" y="106">受け口とホストの間は tart exec の標準入出力。IP を使わない。</text>
+</svg>

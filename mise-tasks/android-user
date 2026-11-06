@@ -1,0 +1,63 @@
+#!/bin/bash
+#MISE description="エミュレータ用のグループと pf の anchor を用意する（sudo が要る。一度だけ。VM は止めておく）"
+set -euo pipefail
+
+ROOT="${MISE_PROJECT_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+# shellcheck source=../config.sh
+. "$ROOT/config.sh"
+# shellcheck source=../lib/vm.sh
+. "$ROOT/lib/vm.sh"
+# shellcheck source=../lib/emulator.sh
+. "$ROOT/lib/emulator.sh"
+
+G="$EMU_GROUP"
+GID_N=502
+A="$EMU_ANCHOR"
+
+if dscl . -read "/Groups/${G}" PrimaryGroupID >/dev/null 2>&1; then
+  echo "あります: ${G}（gid $(dscl . -read "/Groups/${G}" PrimaryGroupID | awk '{print $2}')）"
+else
+  USED=$(dscl . -list /Groups PrimaryGroupID | awk '{print $2}')
+  while printf '%s\n' "$USED" | grep -qx "$GID_N"; do GID_N=$((GID_N + 1)); done
+  echo "${G} を作ります。パスワードを聞かれます。"
+  sudo dscl . -create "/Groups/${G}"
+  sudo dscl . -create "/Groups/${G}" PrimaryGroupID "${GID_N}"
+  sudo dscl . -create "/Groups/${G}" RealName "app-agent-vm emulator"
+  echo "作りました: ${G}（gid ${GID_N}）"
+fi
+
+if id -Gn | tr ' ' '\n' | grep -qx "${G}"; then
+  echo "$USER は ${G} に入っています"
+else
+  echo "$USER を ${G} に加えます"
+  sudo dseditgroup -o edit -a "$USER" -t user "${G}"
+fi
+
+if pf_anchor_ready; then
+  echo "あります: /etc/pf.conf の anchor \"${A}\""
+else
+  pgrep -qf 'tart run' &&
+    { echo "error: VM が動いています。止めてから実行してください（通信が切れます）" >&2; exit 1; }
+  echo "/etc/pf.conf に anchor \"${A}\" を置きます（VPN の anchor より前）"
+  [ -e "/etc/pf.conf.before-${A}" ] || sudo cp /etc/pf.conf "/etc/pf.conf.before-${A}"
+  NEW=$(mktemp)
+  awk -v a="anchor \"${A}\"" -v c='anchor "cisco.anyconnect.vpn"' '
+    $0 == a { next }
+    $0 == c { print a; placed = 1 }
+    { print }
+    END { if (!placed) print a }' /etc/pf.conf > "$NEW"
+  sudo tee /etc/pf.conf < "$NEW" >/dev/null
+  rm -f "$NEW"
+  sudo pfctl -f /etc/pf.conf 2>&1 | grep -v ALTQ >&2 || true
+  pf_anchor_ready || die "置けませんでした"
+  echo "置きました（元の設定は /etc/pf.conf.before-${A}）"
+fi
+
+SUDOERS="/etc/sudoers.d/${A}"
+if sudo test -f "$SUDOERS"; then
+  echo "${SUDOERS} を消します"
+  sudo rm -f "$SUDOERS"
+fi
+
+echo
+echo "エミュレータは mise run claude が起動します。config.local.sh の ANDROID_AVDS に名前を書いてください。"

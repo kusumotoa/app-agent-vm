@@ -1,0 +1,63 @@
+#!/bin/bash
+#MISE description="静的な検査"
+set -euo pipefail
+
+ROOT="${MISE_PROJECT_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+cd "$ROOT"
+
+# ホストの bash（macOS 標準の 3.2）で動くもの全部。
+SCRIPTS=(config.sh config.d/*.sh mise-tasks/preflight mise-tasks/softnet-suid mise-tasks/secrets
+         mise-tasks/claude mise-tasks/stop mise-tasks/status mise-tasks/android-user
+         mise-tasks/lookups lib/*.sh)
+
+bash -n "${SCRIPTS[@]}"
+
+python3 - mise-tasks/netpolicy mise-tasks/relay lib/relay.py <<'EOF'
+import ast, sys
+for path in sys.argv[1:]:
+    ast.parse(open(path).read(), filename=path)
+EOF
+
+# SNI を、本物の ClientHello から読めるか。
+python3 -I - lib/relay.py <<'EOF'
+import runpy, ssl, sys
+vm = runpy.run_path(sys.argv[1], run_name="check")
+def hello(name):
+    inbound, outbound = ssl.MemoryBIO(), ssl.MemoryBIO()
+    sock = ssl.create_default_context().wrap_bio(inbound, outbound, server_hostname=name)
+    try:
+        sock.do_handshake()
+    except ssl.SSLWantReadError:
+        pass
+    return outbound.read()
+for name in ("api.anthropic.com", "Claude.AI"):
+    got = vm["parse_sni"](hello(name))
+    assert got == name.lower(), f"SNI を読めません: {name} -> {got}"
+assert vm["parse_sni"](b"GET / HTTP/1.1\r\n") is None
+EOF
+
+# bash 3.2 に無い・壊れる書き方を弾く。
+#   変数の直後に非 ASCII が続くと、変数名に取り込まれて文字化けする。${var} と書く
+#   local -n は bash 4.3 から
+python3 - "${SCRIPTS[@]}" <<'EOF'
+import re, sys
+bad = [f"{path}:{no}"
+       for path in sys.argv[1:]
+       for no, line in enumerate(open(path, encoding="utf-8"), 1)
+       if re.search(r"[$][A-Za-z_]\w*[^\x00-\x7f]|local -n", line)]
+if bad:
+    sys.exit("bash 3.2 で壊れます: " + ", ".join(bad))
+EOF
+
+. ./config.sh
+[ -n "$VM_NAME" ]
+[ -n "${REPOS[0]:-}" ]
+[ -n "${ALLOW[0]:-}" ]
+
+packer validate -var vm_name="$VM_NAME" -var base_image="$BASE_IMAGE" \
+  -var cpu_count="$VM_CPU" -var memory_gb="$VM_MEMORY_GB" tart.pkr.hcl
+
+. ./lib/vm.sh
+verify_allow
+
+echo "static checks OK"

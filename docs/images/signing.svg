@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 392" width="880" height="392" role="img" aria-label="署名鍵が起動のたびに作られ、8 時間ごとに入れ替わり、停止時に消えるまでの流れ">
+  <style>
+    .bg    { fill: #ffffff; }
+    .panel { fill: #f6f8fa; stroke: #d0d7de; }
+    .box   { fill: #ffffff; stroke: #d0d7de; }
+    .new   { fill: #ddf4e4; stroke: #4a9c68; }
+    .old   { fill: #f6f8fa; stroke: #b0b6bd; stroke-dasharray: 4 3; }
+    .t     { fill: #1f2328; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 13.5px; font-weight: 600; }
+    .m     { fill: #1f2328; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; }
+    .dim   { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 12px; }
+    .hd    { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 12px; font-weight: 600; }
+    .no    { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 11.5px; }
+    .arrow { stroke: #8c959f; stroke-width: 1.5; fill: none; }
+    @media (prefers-color-scheme: dark) {
+      .bg    { fill: #0d1117; }
+      .panel { fill: #161b22; stroke: #30363d; }
+      .box   { fill: #0d1117; stroke: #30363d; }
+      .new   { fill: #16301f; stroke: #4a9c68; }
+      .old   { fill: #161b22; stroke: #484f58; }
+      .t, .m { fill: #e6edf3; }
+      .dim, .hd, .no { fill: #8b949e; }
+    }
+  </style>
+  <defs>
+    <marker id="g1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8c959f"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="880" height="392"/>
+
+  <text class="hd" x="24" y="26">鍵の寿命。人が触るところは無い</text>
+  <rect class="panel" x="16" y="38" width="848" height="104" rx="8"/>
+
+  <rect class="new" x="36" y="60" width="188" height="60" rx="6"/>
+  <text class="m"  x="54" y="84">mise run start</text>
+  <text class="no" x="54" y="104">作って登録</text>
+
+  <path class="arrow" d="M224,90 L268,90" marker-end="url(#g1)"/>
+  <text class="no" x="230" y="82">SIGNING_ROTATE_SECONDS ごと</text>
+
+  <rect class="new" x="268" y="60" width="188" height="60" rx="6"/>
+  <text class="t"  x="286" y="84">入れ替え</text>
+  <text class="no" x="286" y="104">新しく登録 → 古いのを削除</text>
+
+  <path class="arrow" d="M456,90 L500,90" marker-end="url(#g1)"/>
+  <text class="no" x="462" y="82">SIGNING_ROTATE_SECONDS ごと</text>
+
+  <rect class="new" x="500" y="60" width="188" height="60" rx="6"/>
+  <text class="t"  x="518" y="84">入れ替え</text>
+  <text class="no" x="518" y="104">以後くり返す</text>
+
+  <path class="arrow" d="M688,90 L732,90" marker-end="url(#g1)"/>
+
+  <rect class="old" x="732" y="60" width="112" height="60" rx="6"/>
+  <text class="m"  x="750" y="84">stop</text>
+  <text class="no" x="750" y="104">削除して終わり</text>
+
+  <text class="hd" x="24" y="178">入れ替えの中身。動かすのは全部ホスト</text>
+  <rect class="panel" x="16" y="190" width="848" height="122" rx="8"/>
+
+  <text class="m"   x="40" y="216">1. ssh-keygen</text>
+  <text class="dim" x="240" y="216">ホストが新しい鍵を作る</text>
+
+  <text class="m"   x="40" y="240">2. gh api POST</text>
+  <text class="dim" x="240" y="240">公開鍵を GitHub に登録する</text>
+
+  <text class="m"   x="40" y="264">3. tart exec + mv</text>
+  <text class="dim" x="240" y="264">VM の ~/.ssh/signing を置き換える</text>
+
+  <text class="m"   x="40" y="288">4. gh api DELETE</text>
+  <text class="dim" x="240" y="288">古い鍵を GitHub から消す</text>
+
+</svg>

@@ -1,0 +1,157 @@
+#!/bin/bash
+#MISE description="VM を起動して、中で claude を開く。抜けると VM を止める。引数は claude に渡す"
+set -euo pipefail
+
+ROOT="${MISE_PROJECT_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+"$ROOT/mise-tasks/preflight" || { echo "error: 前提が揃っていません（上の出力のとおり直してください）" >&2; exit 1; }
+
+# shellcheck source=../config.sh
+. "$ROOT/config.sh"
+
+VM="${AAV_VM:-$VM_NAME}"
+SHARED="$ROOT/.shared"
+SIGNING_TITLE="${VM}@$(hostname -s)"
+ALLOW_FILE="$ROOT/.allow"
+EXTRA_ARGS=("$@")
+# 背景で動くものの出力は、claude の画面に混ぜずにここへ書く
+LOG="${TMPDIR:-/tmp}/${VM}.log"
+# shellcheck source=../lib/repos.sh
+. "$ROOT/lib/repos.sh"
+# shellcheck source=../lib/secrets.sh
+. "$ROOT/lib/secrets.sh"
+# shellcheck source=../lib/tokens.sh
+. "$ROOT/lib/tokens.sh"
+# shellcheck source=../lib/vm.sh
+. "$ROOT/lib/vm.sh"
+# shellcheck source=../lib/signing.sh
+. "$ROOT/lib/signing.sh"
+# shellcheck source=../lib/stage.sh
+. "$ROOT/lib/stage.sh"
+# shellcheck source=../lib/emulator.sh
+. "$ROOT/lib/emulator.sh"
+# shellcheck source=../lib/relay.sh
+. "$ROOT/lib/relay.sh"
+
+[ -n "$(vm_state "$VM")" ] || die "VM '$VM' がありません（mise run build）"
+[ "$(vm_state "$VM")" != running ] || die "VM '$VM' はすでに起動しています（別の端末で claude が動いていなければ mise run stop）"
+
+rm -rf "$SHARED" "$ALLOW_FILE"
+rm -f "$STOP_MARK"
+: > "$LOG"
+mkdir -p "$SHARED"
+chmod 700 "$SHARED"
+printf '%s\n' "${ALLOW[@]}" > "$ALLOW_FILE"
+cleanup() {
+  local rc=$?
+  set +eu
+  trap - EXIT
+  { for pid in ${BG_PIDS:-}; do kill "$pid"; done
+    [ -n "${BG_PIDS:-}" ] && wait ${BG_PIDS:-}; } 2>/dev/null
+  clean_emulator
+  drop_tunnel "$VM"
+  relay_hosts_drop "$VM"
+  kill "${VM_PID:-}" 2>/dev/null
+  tart stop "$VM" >/dev/null 2>&1
+  drop_signing_key
+  rm -rf "$SHARED" "$ALLOW_FILE"
+  { [ -n "${CTRLC:-}" ] || [ -f "$STOP_MARK" ]; } && exit 0
+  # claude 自身の終了コード（会話を閉じたときなど）は、失敗として報告しない
+  [ "${STARTED:-}" = claude ] && exit 0
+  return 0
+}
+
+clean_emulator() {
+  [ "${#ANDROID_AVDS[@]}" -gt 0 ] || return 0
+  [ -n "${TUNNEL_PID:-}" ] && { kill "$TUNNEL_PID"; wait "$TUNNEL_PID"; } 2>/dev/null
+  for pid in $(emulator_ssh_pids); do kill "$pid" 2>/dev/null; done || true
+  stop_emulators
+  # mise run stop に止められたときは、そちらが外す（聞かれるパスワードが 2 か所に出ない）
+  [ -f "$STOP_MARK" ] || drop_emulator_policy
+  return 0
+}
+trap cleanup EXIT
+trap 'CTRLC=1; exit 0' INT
+
+rotate_signing_forever() {
+  while sleep "$SIGNING_ROTATE_SECONDS"; do rotate_signing_key; done
+}
+
+watch_emulator_policy() {
+  set +e
+  while sleep "$POLICY_INTERVAL"; do
+    [ -n "$(wanted_emulators)" ] || continue
+    refresh_emulator_policy "$ALLOW_FILE" >/dev/null 2>&1
+    verify_emulator_policy && continue
+    if [ -n "${STARTED_AVDS:-}" ]; then
+      echo "error: エミュレータの絞り込みが外れました（${EMU_VERIFY_ERROR}）。自分で起動したエミュレータを止めます" >&2
+      stop_emulators
+    else
+      echo "error: エミュレータの絞り込みが外れました（${EMU_VERIFY_ERROR}）。自分で起動したものではないので止められません。手で止めてください" >&2
+    fi
+  done
+}
+
+echo "==> シークレットが使えるか確かめます"
+verify_tokens || die "シークレットが使えません。登録し直してください（mise run secrets）"
+
+echo "==> シークレットを用意します"
+drop_stale_signing_keys
+stage_all
+
+if [ "${#ANDROID_AVDS[@]}" -gt 0 ]; then
+  echo "==> Android エミュレータの通信を絞ります（macOS の pf の規則を入れるため、sudo のパスワードを聞かれることがあります）"
+  apply_emulator_policy "$ALLOW_FILE"
+  echo "==> エミュレータを用意します"
+  start_emulators
+fi
+
+echo "==> VM を起動します（${VM}）"
+AAV_GITHUB_TOKEN="$(read_secret github-token)" \
+  "$ROOT/mise-tasks/netpolicy" "$ALLOW_FILE" "$POLICY_INTERVAL" \
+  -- tart run "$VM" --no-graphics --dir "shared:${SHARED}:ro" \
+       --net-softnet-block 0.0.0.0/0 \
+       --net-softnet-control-fd 3 \
+  >> "$LOG" 2>&1 &
+VM_PID=$!
+
+echo "==> VM の起動を待ちます（1〜2 分かかることがあります）"
+wait_for_vm "$VM" "$VM_BOOT_TIMEOUT" || { tail -n 20 "$LOG" >&2; die "VM が起動しません（記録は ${LOG}）"; }
+
+# 検証も中継を通るので、先に立てる。
+BG_PIDS=""
+if [ "${#RELAY[@]}" -gt 0 ]; then
+  relay_hosts_drop "$VM"
+  relay_hosts_add "$VM"
+  relay_forever "$VM" >> "$LOG" 2>&1 &
+  BG_PIDS="$BG_PIDS $!"
+fi
+
+echo "==> フィルタが効いているか確かめます"
+verify_firewall "$VM" || die "フィルタの検証に失敗しました"
+[ "${#ANDROID_AVDS[@]}" -eq 0 ] || verify_emulator_policy || die "$EMU_VERIFY_ERROR"
+
+echo "==> Xcode の MCP を確かめます"
+verify_mcp_headless "$VM" ||
+  die "Xcode の MCP がヘッドレスになっていません（tart delete ${VM} のあと mise run build でイメージを作り直す）"
+
+if [ -n "$SIGNING_KEY_ID" ]; then
+  rotate_signing_forever &
+  BG_PIDS="$BG_PIDS $!"
+fi
+
+if [ "${#ANDROID_AVDS[@]}" -gt 0 ]; then
+  watch_emulator_policy >> "$LOG" 2>&1 &
+  BG_PIDS="$BG_PIDS $!"
+
+  TUNNEL_LOG="${TMPDIR:-/tmp}/${EMU_GROUP}.log"
+  tunnel_forever "$VM" >> "$TUNNEL_LOG" 2>&1 &
+  TUNNEL_PID=$!
+  echo "    トンネルの記録は ${TUNNEL_LOG}"
+fi
+
+echo "==> claude を開きます（背景の記録は ${LOG}）"
+STARTED=claude
+cp "$ROOT/lib/boot-in-vm.sh" "$SHARED/boot.sh"
+cp "$ROOT/lib/vm-env.sh" "$SHARED/env.sh"
+cp "$ROOT/lib/xcode-mcp.sh" "$SHARED/xcode-mcp.sh"
+tart exec -i -t "$VM" /bin/bash -lc 'bash "/Volumes/My Shared Files/shared/boot.sh"'

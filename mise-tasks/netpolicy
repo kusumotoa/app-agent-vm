@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+#MISE description="通信先を解決して softnet に流す（claude が呼ぶ）"
+#MISE hide=true
+"""VM を起動し、通信してよい宛先を解決して送り続ける。
+
+    netpolicy <許可リスト> <間隔秒> -- tart run ...
+"""
+import ipaddress
+import json
+import os
+import socket
+import subprocess
+import sys
+import time
+
+def github_cidrs():
+    # 未認証だと 1 時間 60 回で枯れる。トークンがあれば 5000 回になる。
+    config = ""
+    token = os.environ.get("AAV_GITHUB_TOKEN", "")
+    if token:
+        config = 'header = "Authorization: Bearer %s"\n' % token
+    result = subprocess.run(["curl", "-fsS", "--config", "-", "--max-time", "20",
+                             "https://api.github.com/meta"],
+                            input=config, capture_output=True, text=True, timeout=25)
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip() or "curl が失敗しました")
+    meta = json.loads(result.stdout)
+    out = []
+    for key in ("web", "api", "git"):
+        for cidr in meta.get(key, []):
+            if ":" not in cidr and cidr not in out:
+                out.append(cidr)
+    return out
+
+def resolve(domain):
+    result = subprocess.run(["dig", "+short", "A", domain],
+                            capture_output=True, text=True, timeout=15)
+    # dig は CNAME の行も返す。1e100.net. のように数字で始まる名前があるので、IPv4 かどうかで選ぶ
+    out = []
+    for line in result.stdout.split():
+        try:
+            out.append(f"{ipaddress.IPv4Address(line)}/32")
+        except ValueError:
+            pass
+    return out
+
+LAST = {}
+
+def build(path):
+    allow, failed = [], []
+    with open(path, encoding="utf-8") as handle:
+        for raw in handle:
+            entry = raw.split("#", 1)[0].strip()
+            if not entry:
+                continue
+            try:
+                if entry == "@host":
+                    part = ["@host"]
+                elif entry == "@github":
+                    part = github_cidrs()
+                elif "/" in entry:
+                    part = [entry]
+                else:
+                    part = resolve(entry)
+                    if not part:
+                        raise RuntimeError("解決できません")
+                LAST[entry] = part
+            except Exception as error:                    # noqa: BLE001
+                # 一時的な失敗で許可リストを痩せさせない。
+                if entry not in LAST:
+                    failed.append(f"{entry}: {error}")
+                    continue
+                failed.append(f"{entry}: {error}（前回の結果を使います）")
+                part = LAST[entry]
+            for cidr in part:
+                if cidr not in allow:
+                    allow.append(cidr)
+    return allow, failed
+
+class Control:
+    def __init__(self, sock):
+        self.sock = sock
+        self.buf = b""
+        self.n = 0
+
+    def set_policy(self, allow):
+        self.n += 1
+        request = {"jsonrpc": "2.0", "id": str(self.n), "method": "softnet.policy.set",
+                   "params": {"allow": allow, "block": ["0.0.0.0/0"]}}
+        try:
+            self.sock.sendall((json.dumps(request) + "\n").encode())
+        except BrokenPipeError:
+            raise RuntimeError("制御チャネルが閉じました（VM が落ちています）") from None
+        while b"\n" not in self.buf:
+            chunk = self.sock.recv(65536)
+            if not chunk:
+                raise RuntimeError("制御チャネルが閉じました")
+            self.buf += chunk
+        line, self.buf = self.buf.split(b"\n", 1)
+        reply = json.loads(line)
+        if "error" in reply:
+            raise RuntimeError(reply["error"])
+        return reply["result"]
+
+def log(message):
+    print(f"[network] {message}", file=sys.stderr, flush=True)
+
+def start_vm(argv):
+    ours, theirs = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM)
+    for sock in (ours, theirs):
+        os.set_inheritable(sock.fileno(), True)
+
+    def preexec():
+        if theirs.fileno() != 3:
+            os.dup2(theirs.fileno(), 3)
+        os.set_inheritable(3, True)
+
+    return subprocess.Popen(argv, preexec_fn=preexec, close_fds=False), ours
+
+def main():
+    # --print は解決結果を並べて終わる。pf 用。
+    if sys.argv[1] == "--print":
+        allow, failed = build(sys.argv[2])
+        if failed:
+            time.sleep(3)
+            allow, failed = build(sys.argv[2])
+        for line in failed:
+            log(f"解決できません: {line}")
+        print("\n".join(c for c in allow if c != "@host"))
+        # 解決できない宛先があるまま絞ると、届くはずの先が黙って落ちる。
+        return 1 if failed else 0
+
+    path = sys.argv[1]
+    interval = int(sys.argv[2])
+    tart, sock = start_vm(sys.argv[sys.argv.index("--") + 1:])
+
+    control = Control(sock)
+    previous = None
+    try:
+        while True:
+            allow, failed = build(path)
+            for line in failed:
+                log(f"解決できません: {line}")
+            if not allow:
+                log("許可リストが空です。既定拒否のままにします")
+            if allow != previous:
+                try:
+                    log(f"通信を許可する宛先を {control.set_policy(allow).get('ruleCount')} 件にしました")
+                except RuntimeError as error:
+                    log(str(error))
+                    return 1
+                previous = allow
+            try:
+                return tart.wait(timeout=interval)
+            except subprocess.TimeoutExpired:
+                pass
+    finally:
+        if tart.poll() is None:
+            tart.terminate()
+
+if __name__ == "__main__":
+    sys.exit(main())

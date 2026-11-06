@@ -1,0 +1,19 @@
+#!/bin/bash
+#MISE description="softnet に SUID を付ける（sudo が要る。softnet を更新したら実行し直す）"
+set -euo pipefail
+
+ROOT="${MISE_PROJECT_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+# shellcheck source=../lib/vm.sh
+. "$ROOT/lib/vm.sh"
+
+REAL=$(softnet_real_path) || { echo "error: softnet がありません（mise bootstrap）" >&2; exit 1; }
+
+if [ -u "$REAL" ]; then
+  echo "付いています: $REAL"
+  exit 0
+fi
+
+echo "$REAL に付けます。パスワードを聞かれます。"
+sudo chown root:wheel "$REAL"
+sudo chmod u+s "$REAL"
+echo "付けました"

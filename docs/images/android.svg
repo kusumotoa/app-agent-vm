@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 220" width="880" height="220" role="img" aria-label="VM からホストのエミュレータへ届くまで">
+  <style>
+    .bg    { fill: #ffffff; }
+    .panel { fill: #f6f8fa; stroke: #d0d7de; }
+    .on    { fill: #ddf4e4; stroke: #4a9c68; }
+    .mb    { fill: #1f2328; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; font-weight: 600; }
+    .dim   { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 12px; }
+    .hd    { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 12px; font-weight: 600; }
+    .no    { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 11.5px; }
+    .tun   { fill: none; stroke: #4a9c68; stroke-width: 2; }
+    .ah    { fill: #4a9c68; }
+    @media (prefers-color-scheme: dark) {
+      .bg    { fill: #0d1117; }
+      .panel { fill: #161b22; stroke: #30363d; }
+      .on    { fill: #16301f; stroke: #4a9c68; }
+      .mb    { fill: #e6edf3; }
+      .dim, .hd, .no { fill: #8b949e; }
+    }
+  </style>
+  <defs>
+    <marker id="n1" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <polygon class="ah" points="0 0, 9 3, 0 6"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="880" height="220"/>
+
+  <rect class="on" x="16" y="44" width="230" height="96" rx="8"/>
+  <text class="mb" x="36" y="70">macOS VM</text>
+  <text class="no" x="36" y="94">エージェント。iOS はここで確認</text>
+  <text class="no" x="36" y="116">softnet が通信を絞る</text>
+
+  <rect class="panel" x="290" y="20" width="574" height="144" rx="8"/>
+  <text class="mb" x="312" y="46">ホスト</text>
+
+  <rect class="on" x="560" y="36" width="286" height="112" rx="8"/>
+  <text class="mb" x="580" y="62">エミュレータ</text>
+  <text class="no" x="580" y="86">ホストのプロセス</text>
+  <text class="no" x="580" y="108">pf がこのグループを絞る</text>
+
+  <path class="tun" d="M246,96 L560,96" marker-end="url(#n1)"/>
+  <text class="mb" x="312" y="90">adb</text>
+
+  <text class="no" x="16" y="200">どちらの絞り込みも config.d/allow.sh の ALLOW から作る。pf はこれに loopback と名前解決を足す。</text>
+</svg>

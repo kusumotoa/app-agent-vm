@@ -1,0 +1,56 @@
+#!/bin/bash
+#MISE description="前提が揃っているか検査し、足りないものと直し方を出す"
+set -uo pipefail
+
+ROOT="${MISE_PROJECT_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+# shellcheck source=config.sh
+. "$ROOT/config.sh"
+# shellcheck source=lib/secrets.sh
+. "$ROOT/lib/secrets.sh"
+# shellcheck source=lib/vm.sh
+. "$ROOT/lib/vm.sh"
+# shellcheck source=lib/emulator.sh
+. "$ROOT/lib/emulator.sh"
+
+FAILED=0
+ng() { printf '%s\n  %s\n' "$1" "$2" >&2; FAILED=$((FAILED + 1)); }
+
+for c in tart packer gh dig curl; do
+  command -v "$c" >/dev/null && continue
+  case "$c" in
+    tart|packer|gh) ng "$c がありません" "mise bootstrap" ;;
+    *)              ng "$c がありません" "macOS に標準で入っています。PATH を確認してください" ;;
+  esac
+done
+
+REAL=$(softnet_real_path)
+if [ -z "$REAL" ]; then
+  ng "softnet がありません" "mise bootstrap"
+else
+  [ -u "$REAL" ] || ng "softnet の SUID が未設定です。このままでは VM が起動しません" \
+    "mise run softnet-suid"
+fi
+
+if [ "${#ANDROID_AVDS[@]}" -gt 0 ]; then
+  out=$(check_emulator_setup 2>&1) || ng "Android の前提が揃っていません" "$out"
+fi
+
+[ -n "$VM_NAME" ] || ng "config.local.sh に VM_NAME がありません" "config.local.sh.example を見て書く"
+[ "${#REPOS[@]}" -gt 0 ] || ng "config.local.sh に REPOS がありません" "config.local.sh.example を見て書く"
+
+case "$(read_secret github-token)" in
+  '')    ng "GitHub の PAT（github-token）がありません" "https://github.com/settings/personal-access-tokens/new で作り（権限は docs/instructions/secrets.md の表）、mise run secrets" ;;
+  gho_*) ng "GitHub の PAT がアカウント権限の OAuth トークンです（gho_）" "対象を絞った PAT を作り直してください" ;;
+esac
+# 無いと REFS の clone が書き込み用の PAT に落ち、対象外なので 404 になる
+[ -n "$(read_secret github-token-ro)" ] || [ "${#REFS[@]}" -eq 0 ] ||
+  ng "読み取り用の PAT（github-token-ro）がありません" "mise run secrets"
+
+if ! gh auth status >/dev/null 2>&1; then
+  ng "gh にログインしていません" "gh auth login"
+elif ! gh api /user/ssh_signing_keys >/dev/null 2>&1; then
+  ng "gh に鍵を登録する権限がありません" "gh auth refresh -h github.com -s admin:ssh_signing_key"
+fi
+
+[ "$FAILED" -eq 0 ] && echo "前提は揃っています"
+exit "$FAILED"
