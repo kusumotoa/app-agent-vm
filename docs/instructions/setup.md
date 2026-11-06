@@ -22,20 +22,25 @@ $EDITOR config.local.sh
 gh auth login
 gh auth refresh -h github.com -s admin:ssh_signing_key
 
-# 6. シークレットを登録する（ターミナルで直接）
+# 6. Claude の OAuth トークンを作る。ブラウザで認証すると、約 1 年有効なトークンが出る
+#    VM の中でログインするなら、この手順は飛ばす
+claude setup-token
+
+# 7. シークレットを登録する（ターミナルで直接）
+#    最初の質問に、6 で出たトークンを貼る
 #    PAT は、リポジトリの持ち主を Resource owner にして作る（secrets.md）
 mise run secrets
 
-# 7. 足りないものがないか見る。出てきた手順をやって、何も出なくなるまで繰り返す
+# 8. 足りないものがないか見る。出てきた手順をやって、何も出なくなるまで繰り返す
 mise run preflight
 
-# 8. VM を作る（イメージの取得に時間がかかる）
+# 9. VM を作る（イメージの取得に時間がかかる）
 mise run build
 
-# 9. VM を起動する。このターミナルは開けたままにする
+# 10. VM を起動する。このターミナルは開けたままにする
 mise run start
 
-# 10. 別のターミナルで、claude を開く。初回はログインが始まるので、出てくる手順に従う
+# 11. 別のターミナルで、claude を開く。トークンを入れていれば、そのまま始まる。入れていなければ、初回はログインが始まるので、出てくる手順に従う
 mise run claude
 ```
 

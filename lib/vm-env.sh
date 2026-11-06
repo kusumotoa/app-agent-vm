@@ -8,6 +8,9 @@ export GH_TOKEN="$GITHUB_TOKEN"
 [ -f "$S/github-token-ro" ] && export GH_TOKEN_RO="$(cat "$S/github-token-ro")"
 [ -f "$S/github-packages-token" ] && export GPR_KEY="$(cat "$S/github-packages-token")" GPR_USER="$(cat "$S/github-login")"
 
+# Claude の OAuth トークン。あれば、VM の中でログインしなくていい。
+[ -f "$S/claude-token" ] && export CLAUDE_CODE_OAUTH_TOKEN="$(cat "$S/claude-token")"
+
 [ -d ~/android-sdk ] && export ANDROID_HOME=~/android-sdk
 command -v java >/dev/null && export JAVA_HOME="$(cd "$(dirname "$(command -v java)")/.." && pwd)"
 

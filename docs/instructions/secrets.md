@@ -28,8 +28,9 @@ AAV_GITHUB_TOKEN=... mise run start
 | `github-token-ro` | 読み取り用の PAT。`REFS` に Contents の Read-only。`REFS` が空でなければ必須 |
 | `github-packages-token` | 必要なときだけ。GitHub Packages から取るビルド用（[下](#github-packages-の-pat)） |
 
-Claude の認証はここには入れない。
-VM の中の claude でログインする。
+| `claude-token` | 任意。`claude setup-token` で作った OAuth トークン（[下](#claude-の-oauth-トークン)） |
+
+入れなければ、VM の中の claude でログインする。
 
 `gh auth token` の出力は渡さないこと。
 `gho_` で始まるものは、権限が広すぎるので起動時に弾く。
@@ -70,6 +71,26 @@ Issues は、積み残しを起票させたいときだけ。
 
 PAT には有効期限があって、切れると 401 になる。
 起動のときに GitHub を実際に叩いて確かめて、切れていれば VM を起動しない。
+
+## Claude の OAuth トークン
+
+VM の中でログインする代わりに、あらかじめトークンを渡しておける。
+
+```bash
+claude setup-token
+```
+
+ホストで実行して、ブラウザで認証すると、約 1 年有効なトークンが出る。
+これを `mise run secrets` の最初の質問に貼る。
+環境変数なら `AAV_CLAUDE_TOKEN`。
+
+VM の中では、`CLAUDE_CODE_OAUTH_TOKEN` として claude に渡る。
+VM のディスクには書かない。
+トークンがあれば、VM の中のログイン状態より優先される。
+
+claude は権限の確認なしで動くので、VM の中のプロセスはこのトークンを読める。
+出られる宛先を `ALLOW` で絞っているのはそのため。
+推論にだけ使えるトークンなので、漏れたときは `claude setup-token` で作り直す。
 
 ## GitHub Packages の PAT
 

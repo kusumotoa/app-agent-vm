@@ -38,9 +38,9 @@ claude の引数は `--` のあとに書く（`mise run claude -- --model opus`�
 VM を止めても、ディスクは残る。
 clone したリポジトリ、Claude のログイン、会話の履歴は、次に起動したときも使える。
 
-Claude のログインは VM の中でやる。
-初回と、期限が切れたときだけ、claude が出す手順に従えばいい。
-Claude の認証情報は、ホストのキーチェーンには入れていない。
+Claude の認証は 2 通りある。
+`claude setup-token` で作った OAuth トークンを `mise run secrets` に入れておくか、入れずに、VM の中で初回だけログインする。
+トークンの扱いは[シークレット](docs/instructions/secrets.md#claude-の-oauth-トークン)に書いた。
 
 ## 触るリポジトリ
 
