@@ -63,46 +63,6 @@ PAT の範囲を必要なリポジトリだけに絞っておくこと（[シー
 
 確認を残したければ、`config.local.sh` に `CLAUDE_ARGS=()` と書く。
 
-## 設定
-
-共有したい設定は `config.sh` と `config.d/`、自分だけの設定は `config.local.sh`（git に入れない）。
-どちらにもシークレットは書かない。
-シークレットはキーチェーンに入れる。
-
-## VM に入っているもの
-
-ベースイメージ（`config.sh` の `BASE_IMAGE`）に、Xcode、Simulator のランタイム、brew、node、gh、mise、git、Claude Code が入っている。
-Packer が足すのは Xcode MCP をヘッドレスで使うための設定だけ（`vm/mise.toml`）。
-
-Claude Code を上げたいときは、VM の中で `brew upgrade --cask claude-code` を実行する。
-
-## Xcode のスキル
-
-`skills/device-interaction/` は Xcode が同梱しているスキルで、Apple のものなのでこのリポジトリには入れていない（`.gitignore` してある）。
-使うなら、自分の環境で書き出して `skills/` に置く。
-
-```bash
-d=$(mktemp -d) && xcrun agent skills export --output-dir $d && cp -R $d/device-interaction skills/
-```
-
-置いてあれば、起動のときに VM に渡る。
-無くても、ほかのスキルは動く。
-
-## 作り直しと容量
-
-`mise run build` は、同じ名前の VM があると止まる。
-作り直すと VM の中のものが全部消えるので、消すかどうかは自分で決めて、`tart delete <VM 名>` してからもう一度走らせる。
-残したいもの（`~/work` の途中の変更など）は先に取り出しておく。
-
-VM は 100GB 近く、ベースイメージは 75GB ほどある。
-200GB くらい空けておくと安心。
-
-## ほかの構成との関係
-
-JIRA のチケットから自動で回す構成（Symphony を使うもの）から、その部分を外して作った。
-Android の `pf` の anchor（`acvemu`）とグループは、その構成と共有している。
-両方で同時にエミュレータを使うと、お互いの規則を消し合うので、同時には動かさないこと。
-
 ## どこに何があるか
 
 ![リポジトリのどこに何があるか](docs/images/layout.svg)
