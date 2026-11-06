@@ -23,7 +23,7 @@ gh auth login
 gh auth refresh -h github.com -s admin:ssh_signing_key
 
 # 6. シークレットを登録する（ターミナルで直接）
-#    PAT は Resource owner を kusumotoa にして作る（secrets.md）
+#    PAT は、リポジトリの持ち主を Resource owner にして作る（secrets.md）
 mise run secrets
 
 # 7. 足りないものがないか見る。出てきた手順をやって、何も出なくなるまで繰り返す

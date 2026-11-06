@@ -25,7 +25,7 @@ AAV_GITHUB_TOKEN=... mise run start
 | キー | 中身 |
 |---|---|
 | `github-token` | 書き込み用の PAT。`REPOS` に Contents と Pull requests の Read and write |
-| `github-token-ro` | 読み取り用の PAT。`REFS` に Contents の Read-only。`REFS` が公開リポジトリだけなら、なくても動く |
+| `github-token-ro` | 読み取り用の PAT。`REFS` に Contents の Read-only。`REFS` が空でなければ必須 |
 | `github-packages-token` | 必要なときだけ。GitHub Packages から取るビルド用（[下](#github-packages-の-pat)） |
 
 Claude の認証はここには入れない。

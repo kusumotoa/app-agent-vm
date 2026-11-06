@@ -57,7 +57,10 @@ VM の `~/work/<名前>` と `~/work/refs/<名前>` に clone して、起動の
 増やしたいときは `config.local.sh` に `REPOS+=("owner/repo")` と書く。
 
 claude は `--dangerously-skip-permissions` 付きで開く（`config.sh` の `CLAUDE_ARGS`）。
-外に出られない VM の中なので、確認で止まらないようにしている。
+通信を絞った VM の中だけで動かす前提で、確認のたびに止まらないようにしている。
+ただし、VM の中には PAT を渡してあるので、claude は対象のリポジトリに push できてしまう。
+PAT の範囲を必要なリポジトリだけに絞っておくこと（[シークレット](docs/instructions/secrets.md)）。
+
 確認を残したければ、`config.local.sh` に `CLAUDE_ARGS=()` と書く。
 
 ## 設定

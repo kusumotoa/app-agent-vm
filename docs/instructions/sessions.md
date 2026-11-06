@@ -50,12 +50,9 @@ git -C ~/work/TodoMemoApp branch -D agent/<日時>
 
 ## 前の会話を再開する
 
-claude を抜けるときに、次のような行が出る。
-
-```
-Resume this session with:
-claude --resume 0c1f2a3e-....
-```
+claude を抜けるときに、再開用の ID が出ることがある。
+`claude --resume 0c1f2a3e-....` のような行で、`--resume` の後ろが ID。
+出なかったときは、下の「ID を控え忘れたとき」を見る。
 
 この ID を、そのまま渡す。
 
