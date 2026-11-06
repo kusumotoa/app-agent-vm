@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 338" width="880" height="338" role="img" aria-label="VM の ~/work に、書き込む先と読むだけの先がどう置かれるか">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 314" width="880" height="314" role="img" aria-label="VM の ~/work に、書き込む先と読むだけの先がどう置かれるか">
   <style>
     .bg    { fill: #ffffff; }
     .panel { fill: #f6f8fa; stroke: #d0d7de; }
@@ -25,27 +25,22 @@
       <path d="M0,0 L10,5 L0,10 z" fill="#8c959f"/>
     </marker>
   </defs>
-  <rect class="bg" width="880" height="338"/>
+  <rect class="bg" width="880" height="314"/>
   <text class="hd" x="24" y="26">VM の ~/work</text>
-  <rect class="panel" x="16" y="38" width="848" height="280" rx="6"/>
+  <rect class="panel" x="16" y="38" width="848" height="256" rx="6"/>
   <rect class="box" x="32" y="54" width="816" height="30" rx="6"/>
   <text class="m" x="52" y="74">CLAUDE.md</text>
   <text class="dim" x="300" y="74">リポジトリの表と、通信、ビルドの案内。起動のたびにホストが作り直す</text>
-  <rect class="on" x="32" y="94" width="816" height="104" rx="6"/>
+  <rect class="on" x="32" y="94" width="816" height="96" rx="6"/>
   <text class="who" x="52" y="114">書き込む先（REPOS）</text>
-  <text class="m" x="52" y="138">ConnpassFinder/</text>
+  <text class="m" x="52" y="138">TodoMemoApp/</text>
   <text class="dim" x="300" y="138">iOS</text>
-  <text class="m" x="52" y="158">TodoMemoApp/</text>
-  <text class="dim" x="300" y="158">iOS</text>
-  <text class="m" x="52" y="178">TodoMemoAndroidApp/</text>
-  <text class="dim" x="300" y="178">Android</text>
   <text class="dim" x="460" y="138">起動のたびに git fetch だけする。</text>
   <text class="dim" x="460" y="158">作業ツリーとブランチには触らない。</text>
   <text class="dim" x="460" y="178">ブランチは自分で切って、main には直接 push しない。</text>
-  <rect class="box" x="32" y="208" width="816" height="100" rx="6"/>
-  <text class="t" x="52" y="228">読むだけ（REFS）: refs/</text>
-  <text class="m" x="52" y="252">sim-use/</text>
-  <text class="m" x="52" y="272">iPhoneDuoLab/</text>
-  <text class="dim" x="460" y="252">浅い clone。起動のたびに最新を取り直す。</text>
-  <text class="dim" x="460" y="272">編集はしない。変更が要るときは PR に書く。</text>
+  <rect class="box" x="32" y="200" width="816" height="84" rx="6"/>
+  <text class="t" x="52" y="220">読むだけ（REFS）: refs/</text>
+  <text class="m" x="52" y="244">TodoMemoAndroidApp/</text>
+  <text class="dim" x="460" y="244">読み取り専用の clone。起動のたびに最新を取り直す。</text>
+  <text class="dim" x="460" y="264">編集はしない。変更が要るときは PR に書く。</text>
 </svg>

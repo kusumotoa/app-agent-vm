@@ -21,16 +21,13 @@ ANDROID_AVDS=()
 # 足したり直したりしたら、ここだけを直せばよい。VM の ~/work/CLAUDE.md の表は、起動のたびにここから作る。
 # config.local.sh で REPOS=(...) と書くと置き換わる。足すだけなら REPOS+=(...)。
 REPOS=(
-  "kusumotoa/ConnpassFinder"       # connpass API v2 の iOS アプリ（Swift、SwiftUI、SPM のマルチモジュール）
   "kusumotoa/TodoMemoApp"          # ToDo メモの iOS アプリ（Swift）
-  "kusumotoa/TodoMemoAndroidApp"   # ToDo メモの Android アプリ（Kotlin）
 )
 
 # 読むだけのリポジトリ。~/work/refs/<名前> に置く。
 # config.local.sh で REFS=(...) と書くと置き換わる。足すだけなら REFS+=(...)。
 REFS=(
-  "kusumotoa/sim-use"        # iOS シミュレータと Android エミュレータを、AI エージェントが操作する CLI（公開）
-  "kusumotoa/iPhoneDuoLab"   # iPhone Duo（折りたたみ）向け API を動かして確かめる試行錯誤用（公開）
+  "kusumotoa/TodoMemoAndroidApp"   # ToDo メモの Android アプリ（Kotlin）。読むだけ
 )
 
 VM_NAME=""

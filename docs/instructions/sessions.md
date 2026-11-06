@@ -27,12 +27,12 @@ mise run claude -- --model opus
 並行して別々の作業をするなら、`--repo` で作業ツリーを切る。
 
 ```bash
-mise run claude --repo ConnpassFinder
+mise run claude --repo TodoMemoApp
 ```
 
 次のものが用意されて、そこで claude が開く。
 
-- 作業ツリー: `~/work/sessions/<日時>/ConnpassFinder`
+- 作業ツリー: `~/work/sessions/<日時>/TodoMemoApp`
 - ブランチ: デフォルトブランチから切った `agent/<日時>`
 - `local.properties` や `secret.properties`: 元の clone から持ってくる
 - `Pods/`: 元の clone と `Podfile.lock` が同じなら、APFS の複製で持ってくる
@@ -44,8 +44,8 @@ mise run claude --repo ConnpassFinder
 要らなくなったら、VM の中で消す。
 
 ```bash
-git -C ~/work/ConnpassFinder worktree remove ~/work/sessions/<日時>/ConnpassFinder
-git -C ~/work/ConnpassFinder branch -D agent/<日時>
+git -C ~/work/TodoMemoApp worktree remove ~/work/sessions/<日時>/TodoMemoApp
+git -C ~/work/TodoMemoApp branch -D agent/<日時>
 ```
 
 ## 前の会話を再開する
