@@ -46,4 +46,3 @@ mise run claude
 ## Android も使うなら
 
 `mise run android-user` を実行して、AVD を用意する（[Android のエミュレータ](android.md)）。
-Symphony を使う別構成ですでにやっていれば、`android-user` は要らない。
