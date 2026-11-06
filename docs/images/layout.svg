@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 394" width="880" height="394" role="img" aria-label="リポジトリのどこに何があるか">
+  <style>
+    .bg    { fill: #ffffff; }
+    .panel { fill: #f6f8fa; stroke: #d0d7de; }
+    .box   { fill: #ffffff; stroke: #d0d7de; }
+    .on    { fill: #ddf4e4; stroke: #4a9c68; }
+    .t     { fill: #1f2328; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 14px; font-weight: 600; }
+    .m     { fill: #1f2328; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; }
+    .dim   { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 12px; }
+    .hd    { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 12px; font-weight: 600; }
+    .no    { fill: #656d76; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 11.5px; }
+    .who   { fill: #4a9c68; font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 11.5px; font-weight: 600; }
+    .arrow { stroke: #8c959f; stroke-width: 1.5; fill: none; }
+    @media (prefers-color-scheme: dark) {
+      .bg    { fill: #0d1117; }
+      .panel { fill: #161b22; stroke: #30363d; }
+      .box   { fill: #0d1117; stroke: #30363d; }
+      .on    { fill: #16301f; stroke: #4a9c68; }
+      .t, .m { fill: #e6edf3; }
+      .dim, .hd, .no { fill: #8b949e; }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8c959f"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="880" height="394"/>
+  <text class="hd" x="24" y="26">app-agent-vm/</text>
+  <rect class="panel" x="16" y="38" width="848" height="340" rx="6"/>
+  <rect class="box" x="32" y="56" width="816" height="32" rx="6"/>
+  <text class="m" x="52" y="77">config.sh</text>
+  <text class="dim" x="300" y="77">共有する設定。対象のリポジトリ（REPOS / REFS）と VM の大きさ</text>
+  <rect class="box" x="32" y="96" width="816" height="32" rx="6"/>
+  <text class="m" x="52" y="117">config.d/allow.sh</text>
+  <text class="dim" x="300" y="117">VM から出られる宛先（ALLOW）</text>
+  <rect class="box" x="32" y="136" width="816" height="32" rx="6"/>
+  <text class="m" x="52" y="157">config.local.sh</text>
+  <text class="dim" x="300" y="157">自分だけの設定。git には入れない</text>
+  <rect class="box" x="32" y="176" width="816" height="32" rx="6"/>
+  <text class="m" x="52" y="197">tart.pkr.hcl, vm/</text>
+  <text class="dim" x="300" y="197">VM のイメージを作る手順（mise run build）</text>
+  <rect class="box" x="32" y="216" width="816" height="32" rx="6"/>
+  <text class="m" x="52" y="237">mise-tasks/</text>
+  <text class="dim" x="300" y="237">claude、stop、status、secrets、preflight など、mise run で呼ぶもの</text>
+  <rect class="box" x="32" y="256" width="816" height="32" rx="6"/>
+  <text class="m" x="52" y="277">lib/</text>
+  <text class="dim" x="300" y="277">mise-tasks が読む関数。VM の中で動く boot-in-vm.sh もここ</text>
+  <rect class="box" x="32" y="296" width="816" height="32" rx="6"/>
+  <text class="m" x="52" y="317">skills/</text>
+  <text class="dim" x="300" y="317">VM の中の claude に渡すスキル</text>
+  <rect class="box" x="32" y="336" width="816" height="32" rx="6"/>
+  <text class="m" x="52" y="357">docs/</text>
+  <text class="dim" x="300" y="357">セットアップや困ったときの手引き</text>
+</svg>

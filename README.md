@@ -4,6 +4,8 @@ Claude Code を、Mac の中の別の macOS（VM）で動かすための環境�
 `mise run claude` で VM が立ち上がって、その中で claude が開く。
 claude を抜けると VM も止まる。
 
+![mise run claude を実行してから、VM が止まるまでの流れ](docs/images/overview.svg)
+
 VM には [Tart](https://github.com/openai/tart) を使っている。
 Xcode が最初から入っているので、ビルドをホストに橋渡しする必要がない。
 
@@ -41,6 +43,8 @@ VM の `~/work/<名前>` と `~/work/refs/<名前>` に clone して、起動の
 claude は `~/work` で開く。
 そこに置く `CLAUDE.md` には、リポジトリの表と、通信の制限、ビルドの方法が書いてある。
 この表は `config.sh` から毎回作り直す。
+
+![VM の ~/work に、書き込む先と読むだけの先がどう置かれるか](docs/images/repos.svg)
 
 増やしたいときは `config.local.sh` に `REPOS+=("owner/repo")` と書く。
 
@@ -87,6 +91,10 @@ VM は 100GB 近く、ベースイメージは 75GB ほどある。
 JIRA のチケットから自動で回す構成（Symphony を使うもの）から、その部分を外して作った。
 Android の `pf` の anchor（`acvemu`）とグループは、その構成と共有している。
 両方で同時にエミュレータを使うと、お互いの規則を消し合うので、同時には動かさないこと。
+
+## どこに何があるか
+
+![リポジトリのどこに何があるか](docs/images/layout.svg)
 
 ## もっと詳しく
 
