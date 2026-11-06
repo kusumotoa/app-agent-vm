@@ -133,7 +133,7 @@ repo_rows() {
   eval "set -- \${$name[@]+\"\${$name[@]}\"}"
   for repo in "$@"; do
     [ -n "$repo" ] || continue
-    desc=$(grep -F "\"$repo\"" "$file" | sed -n 's/.*#[[:space:]]*//p' | head -1)
+    desc=$(grep -hF "\"$repo\"" "$file" "$ROOT/config.local.sh" 2>/dev/null | sed -n 's/.*#[[:space:]]*//p' | head -1)
     printf '| `%s` | %s |\n' "${repo##*/}" "${desc:-}"
   done
 }

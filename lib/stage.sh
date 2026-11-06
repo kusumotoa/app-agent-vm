@@ -28,6 +28,14 @@ stage_identity() {
   put git-email "${who#*	}"
 }
 
+# Claude の OAuth トークン（claude setup-token で作ったもの）。無ければ VM の中でログインする。
+stage_claude_token() {
+  local t
+  t="$(read_secret claude-token)"
+  [ -n "$t" ] || return 0
+  put claude-token "$t"
+}
+
 # claude に渡す引数。VM の中で bash が 1 語ずつ読めるように %q で quote する。
 stage_claude_args() {
   local out="" a
@@ -46,6 +54,7 @@ stage_repo_files() {
 
 stage_all() {
   stage_github
+  stage_claude_token
   stage_claude_args
   stage_repo_files
   stage_signing
