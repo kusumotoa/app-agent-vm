@@ -1,5 +1,6 @@
 #!/bin/bash
-# VM の中で、claude を立ち上げるところまで。mise run claude が tart exec -it で呼ぶ。
+# VM の中を用意する（git、署名鍵、スキル、リポジトリ）。mise run start が、起動のたびに一度だけ呼ぶ。
+# claude を開くのは mise run claude（lib/vm-env.sh を読んでから）。
 set -e
 
 S="/Volumes/My Shared Files/shared"
@@ -47,8 +48,3 @@ mkdir -p ~/work
 cp "$S/work-CLAUDE.md" ~/work/CLAUDE.md
 echo "==> リポジトリを用意します"
 bash ~/repos.sh
-
-# 認証は VM の中で行う。初回と失効したときは、claude が出す手順でログインする。
-cd ~/work
-eval "set -- $(cat "$S/claude-args")"
-exec claude "$@"

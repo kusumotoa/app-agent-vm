@@ -60,4 +60,4 @@ if sudo test -f "$SUDOERS"; then
 fi
 
 echo
-echo "エミュレータは mise run claude が起動します。config.local.sh の ANDROID_AVDS に名前を書いてください。"
+echo "エミュレータは mise run start が起動します。config.local.sh の ANDROID_AVDS に名前を書いてください。"

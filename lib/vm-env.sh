@@ -1,5 +1,5 @@
 # VM の中でシークレットとビルドの環境変数を揃える。boot-in-vm.sh が読む。
-# 共有フォルダは mise run claude の間だけある。VM のディスクには何も書かない。
+# 共有フォルダは mise run start の間だけある。VM のディスクには何も書かない。
 S="/Volumes/My Shared Files/shared"
 
 export GITHUB_TOKEN="$(cat "$S/github-token")"

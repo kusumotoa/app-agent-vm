@@ -3,7 +3,7 @@
 ![ホストのエミュレータに、VM から届くまで](../images/android.svg)
 
 エミュレータはホストで動かして、VM からは adb で繋ぐ。
-起動も後片付けも、`mise run claude` がやる。
+起動も後片付けも、`mise run start` がやる。
 
 ## 最初に一回だけ
 
@@ -36,7 +36,7 @@ mise run android-user
 ## 使うとき
 
 特にやることはない。
-`mise run claude` が `ANDROID_AVDS` の AVD を起動して、通信を絞って、トンネルを張る。
+`mise run start` が `ANDROID_AVDS` の AVD を起動して、通信を絞って、トンネルを張る。
 切れたら張り直す。
 
 VM の中では、`adb devices` に `device` として出てくる。

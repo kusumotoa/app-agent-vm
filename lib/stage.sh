@@ -31,7 +31,7 @@ stage_identity() {
 # claude に渡す引数。VM の中で bash が 1 語ずつ読めるように %q で quote する。
 stage_claude_args() {
   local out="" a
-  for a in ${CLAUDE_ARGS[@]+"${CLAUDE_ARGS[@]}"} ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}; do
+  for a in ${CLAUDE_ARGS[@]+"${CLAUDE_ARGS[@]}"}; do
     out="${out}$(printf '%q' "$a") "
   done
   put claude-args "$out"

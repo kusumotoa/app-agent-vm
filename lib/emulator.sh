@@ -2,7 +2,7 @@ EMU_GROUP="_acvemu"
 EMU_ANCHOR="acvemu"
 EMU_TOKEN_FILE="${TMPDIR:-/tmp}/acvemu.pftoken"
 EMU_STATE_FILE="${TMPDIR:-/tmp}/acvemu.state"
-# mise run stop が止めている間だけある。claude タスクは、止められたと分かって静かに終わる
+# mise run stop が止めている間だけある。start は、止められたと分かって静かに終わる
 STOP_MARK="${TMPDIR:-/tmp}/acvemu.stopping"
 EMU_DENIED="1.1.1.1"
 EMU_DENIED_PORT=443

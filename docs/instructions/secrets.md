@@ -16,7 +16,7 @@ mise run secrets
 名前は、キーの名前に `AAV_` を付けて大文字にし、`-` を `_` にしたもの。
 
 ```bash
-AAV_GITHUB_TOKEN=... mise run claude
+AAV_GITHUB_TOKEN=... mise run start
 ```
 
 画面のない環境（SSH で入ったセッションなど）では、キーチェーンが施錠されたままで読めない。

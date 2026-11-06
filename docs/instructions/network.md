@@ -20,14 +20,14 @@ ALLOW=(
 `ALLOW` に `0.0.0.0/0` を書くと全部通ってしまう。
 `mise run test` と起動のときに弾いている。
 
-起動のたびに `api.github.com` に届くかだけ確かめて、届かなければ claude を開かない。
+起動のたびに `api.github.com` に届くかだけ確かめて、届かなければ start が止まる。
 ほかの宛先は確かめない。
 
 ## 宛先を足す
 
 ![宛先を足すとどこを通って VM に効くか](../images/allow.svg)
 
-`config.d/allow.sh` の `ALLOW` に足して、`mise run stop` のあとで `mise run claude` をやり直す。
+`config.d/allow.sh` の `ALLOW` に足して、`mise run stop` のあとで `mise run start` をやり直す。
 
 ```bash
 ALLOW+=("cdn.cocoapods.org")
@@ -64,7 +64,7 @@ tart exec <VM 名> curl -s -o /dev/null -m 8 -w '%{http_code}\n' https://<宛先
 
 - 443 以外のポートや、HTTPS 以外は、名前では通らない。CIDR で書く
 - 依存の取得先は、リダイレクト先まで書く。たとえば Gradle の配布物は、`github.com` から `release-assets.githubusercontent.com` に飛ぶ
-- 繋げなかったときのエラーは、`mise run claude` の出力に出る
+- 繋げなかったときのエラーは、`mise run start` の出力に出る
 
 ## VPN をつないだとき
 

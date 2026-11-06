@@ -1,6 +1,6 @@
 # app-agent-vm
 
-- 操作は mise run claude / status / stop、検査は mise run test、イメージの作り直しは mise run build
+- 操作は mise run start / claude / status / stop、検査は mise run test、イメージの作り直しは mise run build
 - 使い方と構成は README.md
 - VM の中身は tart.pkr.hcl と vm/mise.toml
 - シェルはホストの bash 3.2 で動く。合わない書き方は mise run test が見つける

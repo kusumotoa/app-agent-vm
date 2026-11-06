@@ -19,7 +19,7 @@ VM="${AAV_VM:-$VM_NAME}"
 running() { pgrep -f "$1" >/dev/null 2>&1; }
 
 echo "ホスト"
-running 'mise-tasks/claude' && echo "  ✓ claude タスク"       || echo "  - claude タスクは動いていません"
+running 'mise-tasks/start' && echo "  ✓ start"               || echo "  - start は動いていません"
 running 'netpolicy' && echo "  ✓ 通信先のポリシー更新" || echo "  - ポリシー更新は動いていません"
 
 if [ "${#ANDROID_AVDS[@]}" -gt 0 ]; then
@@ -66,7 +66,8 @@ echo "VM '${VM}': ${state:-見つかりません}"
 if [ "$state" = running ]; then
   echo "  この VM の中"
   tart exec "$VM" /bin/bash -lc '
-    if pgrep -x claude >/dev/null; then echo "    ✓ claude"; else echo "    - claude は動いていません"; fi
+    n=$(pgrep -x claude | wc -l | tr -d " ")
+    if [ "$n" -gt 0 ]; then echo "    ✓ claude（${n} 件の会話）"; else echo "    - claude は開いていません"; fi
     echo "    claude: $(claude --version 2>/dev/null)"' 2>/dev/null
   if verify_mcp_headless "$VM" 2>/dev/null; then
     echo "    ✓ Xcode MCP"
@@ -78,6 +79,10 @@ if [ "$state" = running ]; then
     for d in ~/work/*/; do
       [ -d "$d" ] || continue
       case "${d%/}" in */refs|*/.cache) continue ;; esac
+      echo "    ${d%/}: $(git -C "$d" branch --show-current 2>/dev/null)"
+    done
+    for d in ~/work/sessions/*/*/; do
+      [ -d "$d" ] || continue
       echo "    ${d%/}: $(git -C "$d" branch --show-current 2>/dev/null)"
     done
   ' 2>/dev/null

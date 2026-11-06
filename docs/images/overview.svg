@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 570" width="880" height="570" role="img" aria-label="mise run claude を実行してから、claude を抜けて VM が止まるまでの流れ">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 596" width="880" height="596" role="img" aria-label="mise run start で VM を立ち上げ、別のターミナルから claude で入り、止めるまでの流れ">
   <style>
     .bg    { fill: #ffffff; }
     .panel { fill: #f6f8fa; stroke: #d0d7de; }
@@ -25,11 +25,11 @@
       <path d="M0,0 L10,5 L0,10 z" fill="#8c959f"/>
     </marker>
   </defs>
-  <rect class="bg" width="880" height="570"/>
-  <text class="hd" x="24" y="26">ホスト（Mac）</text>
+  <rect class="bg" width="880" height="596"/>
+  <text class="hd" x="24" y="26">ホスト（Mac）— 1 つ目のターミナル</text>
   <rect class="on" x="16" y="38" width="848" height="46" rx="6"/>
-  <text class="t" x="40" y="60">mise run claude</text>
-  <text class="who" x="700" y="60">人の操作はこれだけ</text>
+  <text class="t" x="40" y="60">mise run start</text>
+  <text class="who" x="640" y="60">開けたままにしておく</text>
   <text class="dim" x="40" y="77">preflight で前提を確かめてから始まる</text>
   <path class="arrow" d="M440,84 L440,104" marker-end="url(#a)"/>
   <rect class="panel" x="16" y="104" width="848" height="176" rx="6"/>
@@ -38,28 +38,31 @@
   <text class="dim" x="60" y="147">GitHub の PAT を実際に叩く。切れていれば、ここで止まる</text>
   <rect class="box" x="40" y="158" width="800" height="34" rx="6"/>
   <text class="t" x="60" y="173">シークレットを共有フォルダに置く</text>
-  <text class="dim" x="60" y="187">読み取り専用で、起動している間だけある（secrets.md）</text>
+  <text class="dim" x="60" y="187">読み取り専用で、start が動いている間だけある（secrets.md）</text>
   <rect class="box" x="40" y="198" width="800" height="34" rx="6"/>
   <text class="t" x="60" y="213">通信の許可を、VM の外から入れる</text>
   <text class="dim" x="60" y="227">ALLOW に書いた宛先だけ（softnet）。VM の中からは変えられない</text>
   <rect class="box" x="40" y="238" width="800" height="34" rx="6"/>
   <text class="t" x="60" y="253">VM を起動して、通信を確かめる</text>
-  <text class="dim" x="60" y="267">api.github.com に届かなければ、claude を開かない</text>
+  <text class="dim" x="60" y="267">api.github.com に届かなければ、start が止まる</text>
   <path class="arrow" d="M440,280 L440,304" marker-end="url(#a)"/>
   <text class="hd" x="24" y="300">Tart の macOS VM — 通信は softnet が外から絞る</text>
-  <rect class="panel" x="16" y="308" width="848" height="150" rx="6"/>
+  <rect class="panel" x="16" y="308" width="848" height="100" rx="6"/>
   <rect class="box" x="40" y="322" width="800" height="36" rx="6"/>
-  <text class="t" x="60" y="338">リポジトリを用意する</text>
-  <text class="dim" x="60" y="353">~/work に clone して、起動のたびに fetch だけする。作業ツリーには触らない</text>
-  <rect class="box" x="40" y="364" width="800" height="36" rx="6"/>
-  <text class="t" x="60" y="380">claude を開く</text>
-  <text class="dim" x="60" y="395">~/work で開く。ログインは VM の中で行い、Xcode MCP とスキルも使える</text>
-  <rect class="box" x="40" y="406" width="800" height="36" rx="6"/>
-  <text class="t" x="60" y="422">ビルドとテスト</text>
-  <text class="dim" x="60" y="437">Xcode か ./gradlew。Android のエミュレータはホストで動いて、adb で繋がる</text>
-  <path class="arrow" d="M440,458 L440,482" marker-end="url(#a)"/>
-  <rect class="on" x="16" y="482" width="848" height="46" rx="6"/>
-  <text class="t" x="40" y="504">claude を抜けると、VM が止まる</text>
-  <text class="dim" x="40" y="521">共有フォルダと通信の許可、署名鍵が片付く。VM のディスクは残る</text>
-  <text class="no" x="16" y="552">リポジトリへの変更は、VM の中で commit して push する。ホストへの受け渡しは、ブランチと PR。</text>
+  <text class="t" x="60" y="338">VM の中を用意する</text>
+  <text class="dim" x="60" y="353">git と署名鍵、スキル、Xcode MCP。~/work にリポジトリを clone して、fetch する</text>
+  <rect class="box" x="40" y="364" width="800" height="34" rx="6"/>
+  <text class="t" x="60" y="380">待機する</text>
+  <text class="dim" x="60" y="393">Android のエミュレータはホストで動いて、adb で繋がる</text>
+  <path class="arrow" d="M440,408 L440,436" marker-end="url(#a)"/>
+  <text class="hd" x="24" y="430">ホスト（Mac）— 別のターミナル。何本でも開ける</text>
+  <rect class="on" x="16" y="440" width="848" height="66" rx="6"/>
+  <text class="t" x="40" y="462">mise run claude</text>
+  <text class="who" x="560" y="462">VM の中で claude が開く</text>
+  <text class="dim" x="40" y="480">&lt;ID&gt; で前の会話を再開する。--repo &lt;名前&gt; で作業ツリーを切って、並行して別の作業をする</text>
+  <text class="dim" x="40" y="498">ビルドとテストは VM の中の Xcode か ./gradlew。成果は commit して push し、PR にする</text>
+  <path class="arrow" d="M440,506 L440,530" marker-end="url(#a)"/>
+  <rect class="box" x="16" y="530" width="848" height="46" rx="6"/>
+  <text class="t" x="40" y="552">止めるとき: start のターミナルで Ctrl-C、または mise run stop</text>
+  <text class="dim" x="40" y="569">共有フォルダと通信の許可、署名鍵が片付く。VM のディスクと会話の履歴は残る</text>
 </svg>

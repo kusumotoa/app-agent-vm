@@ -32,7 +32,10 @@ mise run preflight
 # 8. VM を作る（イメージの取得に時間がかかる）
 mise run build
 
-# 9. 開く。初回は claude のログインが始まるので、出てくる手順に従う
+# 9. VM を起動する。このターミナルは開けたままにする
+mise run start
+
+# 10. 別のターミナルで、claude を開く。初回はログインが始まるので、出てくる手順に従う
 mise run claude
 ```
 

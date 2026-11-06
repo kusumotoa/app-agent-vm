@@ -7,7 +7,7 @@ cd "$ROOT"
 
 # ホストの bash（macOS 標準の 3.2）で動くもの全部。
 SCRIPTS=(config.sh config.d/*.sh mise-tasks/preflight mise-tasks/softnet-suid mise-tasks/secrets
-         mise-tasks/claude mise-tasks/stop mise-tasks/status mise-tasks/android-user
+         mise-tasks/start mise-tasks/claude mise-tasks/stop mise-tasks/status mise-tasks/android-user
          mise-tasks/lookups lib/*.sh)
 
 bash -n "${SCRIPTS[@]}"
