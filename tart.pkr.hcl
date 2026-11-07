@@ -53,6 +53,7 @@ build {
       "mkdir -p ~/setup ~/.config/mise",
       "mv /tmp/mise.toml ~/setup/mise.toml",
       "mv /tmp/config.toml ~/.config/mise/config.toml",
+      "printf -- '--sdk=%s/android-sdk\\n--no-metrics\\n' \"$HOME\" > ~/.androidrc",
       "cd ~/setup && mise trust && mise bootstrap",
     ]
   }

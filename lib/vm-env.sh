@@ -12,6 +12,7 @@ export GH_TOKEN="$GITHUB_TOKEN"
 [ -f "$S/claude-token" ] && export CLAUDE_CODE_OAUTH_TOKEN="$(cat "$S/claude-token")"
 
 [ -d ~/android-sdk ] && export ANDROID_HOME=~/android-sdk
+export PATH="$HOME/.local/share/mise/shims:$PATH"
 command -v java >/dev/null && export JAVA_HOME="$(cd "$(dirname "$(command -v java)")/.." && pwd)"
 
 # 更新は brew が行う。本質的でない通信（テレメトリ、更新確認）は出さない。

@@ -76,4 +76,5 @@ PAT の範囲を必要なリポジトリだけに絞っておくこと（[シー
 | [シークレット](docs/instructions/secrets.md) | キーチェーンから VM へ渡す方法 |
 | [通信の制限](docs/instructions/network.md) | softnet と `ALLOW` |
 | [Android のエミュレータ](docs/instructions/android.md) | ホストで動かして VM から繋ぐ |
+| [VM の中のツールを更新する](docs/instructions/tools-update.md) | イメージを作り直さずに Android CLI を上げる |
 | [困ったとき](docs/instructions/troubleshooting.md) | 症状から探す |
