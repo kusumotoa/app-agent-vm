@@ -1,2 +1,5 @@
 [settings]
 minimum_release_age = "7d"
+
+[tools]
+android-cli = "latest"

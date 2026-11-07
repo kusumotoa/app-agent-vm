@@ -3,7 +3,7 @@
 添付は `--attach` で渡す。本文にローカルのパスを書いてもレビューする人には届かない。
 
 撮った画像は開かない（プロンプトの "You cannot look at images"）。
-画面が意図どおりかは画面の文字で確かめる。Android の引き方は [android-ui](../../android-ui/SKILL.md)。
+画面が意図どおりかは画面の文字で確かめる。Android の引き方は `android-cli` スキル。
 
 ```bash
 gh pr create --draft --base "$BASE" --title "..." --body-file /tmp/pr-body.md \
@@ -31,7 +31,7 @@ kill -INT "$REC"; wait "$REC"
 
 `adb devices` で `device` で終わる行が無ければ撮れない。`offline` は繋がっていない。
 
-インストール、起動、操作は [android-ui](../../android-ui/SKILL.md)。操作したあとの画面を撮る。
+インストール、起動、操作は `android-cli` スキル。操作したあとの画面を撮る。
 
 ```bash
 adb exec-out screencap -p > /tmp/after.png

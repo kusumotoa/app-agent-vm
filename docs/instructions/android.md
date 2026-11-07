@@ -22,6 +22,11 @@ Android Studio の画面から作ればいい。
 ANDROID_AVDS=("Pixel_10_Pro" "Pixel_Tablet")
 ```
 
+2 台書くのがおすすめ。
+`android layout` を使った端末では、`uiautomator dump` が使えなくなる。
+端末ごとに独立しているので、2 台あれば、一方で `android layout`、もう一方で `uiautomator dump` を同時に使える。
+`adb shell am force-stop com.android.cli.interact.instrumentation` で止めれば、`android layout` を使った端末でも `uiautomator dump` が使える。
+
 タブレットや折りたたみでも確かめたければ、並べて書く。
 
 アプリが繋ぎに行く先は、`config.d/allow.sh` の `ALLOW` に足す。
@@ -32,6 +37,17 @@ VM を止めた状態で、グループと `pf` の設定を入れる。
 ```bash
 mise run android-user
 ```
+
+公式の `android-cli` スキルを、このリポジトリのルートで入れる。
+`skills/android-cli/` は git 管理しないので、clone し直したら入れ直す。
+更新も同じコマンド。
+
+```bash
+d=$(mktemp -d) && mkdir -p $d/skills/android-cli && (cd $d && mise exec android-cli@latest -- android --no-metrics skills add android-cli --project .) && mkdir -p skills/android-cli && cp $d/skills/android-cli/SKILL.md skills/android-cli/
+```
+
+リポジトリのルートで `--project .` を直接実行しない。
+`.claude/skills/android-cli` も作られる。
 
 ## 使うとき
 
