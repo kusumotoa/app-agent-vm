@@ -76,6 +76,7 @@ if [ "$state" = running ]; then
   fi
   tart exec "$VM" /bin/bash -lc '
     echo "    スキル: $(ls ~/.claude/skills 2>/dev/null | tr "\n" " ")"
+    echo "    Xcode のスキル: $(ls ~/.claude/plugins/cache/xcode-local/xcode-integration/*/skills 2>/dev/null | tr "\n" " ")"
     for d in ~/work/*/; do
       [ -d "$d" ] || continue
       case "${d%/}" in */refs|*/.cache) continue ;; esac

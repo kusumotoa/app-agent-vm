@@ -115,7 +115,7 @@ EOS
 ## ビルド
 
 Xcode のプロジェクトは `xcode-build` スキルを使う。
-iOS シミュレータでアプリを動かして画面を確かめるのは `device-interaction` スキル（入っていれば）。
+iOS シミュレータでアプリを動かして画面を確かめるのは `device-interaction` スキル。
 Gradle のプロジェクトは `gradle-build` スキル、エミュレータで確かめるのは `android-cli` スキル（入っていれば）。
 画面は `android layout` が返す文字で確かめる。`android screen capture` で撮った画像は開かない。
 実行時の挙動は、`sim-log`（iOS）か `android-log`（Android）でログを読む。

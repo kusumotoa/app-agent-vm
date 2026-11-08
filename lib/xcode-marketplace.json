@@ -1,0 +1,7 @@
+{
+  "name": "xcode-local",
+  "owner": { "name": "local" },
+  "plugins": [
+    { "name": "xcode-integration", "source": "./xcode-integration", "description": "Xcode 同梱のスキル" }
+  ]
+}

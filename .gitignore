@@ -2,6 +2,4 @@
 .allow
 config.local.sh
 __pycache__/
-# 公開リポジトリなので、ignore にしておく
-skills/device-interaction/
 skills/android-cli/

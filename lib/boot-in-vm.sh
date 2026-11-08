@@ -35,6 +35,25 @@ mkdir -p ~/.claude
 rm -rf ~/.claude/skills
 cp -R "$S/skills" ~/.claude/skills
 
+# Xcode 同梱のスキルは、Xcode の plugin を入れる。起動のたびに入れ直すので、Xcode を上げれば追従する。
+# plugin path は、標準入力を閉じないと、パスを出したあとも待ち続ける。
+XP="$(xcrun agent plugin path --plugin-format claude < /dev/null 2>/dev/null)"
+if [ -d "$XP/skills" ]; then
+  XM=~/.claude/xcode-marketplace
+  claude plugin uninstall xcode-integration@xcode-local < /dev/null >/dev/null 2>&1 || true
+  claude plugin marketplace remove xcode-local < /dev/null >/dev/null 2>&1 || true
+  rm -rf "$XM"
+  mkdir -p "$XM/.claude-plugin"
+  cp -R "$XP" "$XM/xcode-integration"
+  chmod -R u+w "$XM/xcode-integration"
+  cp "$S/xcode-marketplace.json" "$XM/.claude-plugin/marketplace.json"
+  claude plugin marketplace add "$XM" < /dev/null >/dev/null &&
+    claude plugin install xcode-integration@xcode-local < /dev/null >/dev/null ||
+    echo "warning: Xcode のスキルを claude に入れられませんでした" >&2
+else
+  echo "warning: Xcode の plugin の場所を引けませんでした。Xcode のスキルは入りません" >&2
+fi
+
 # Xcode の MCP。動いている Xcode Service に固定してつなぐ（lib/xcode-mcp.sh）。
 cp "$S/xcode-mcp.sh" ~/.claude/xcode-mcp.sh
 chmod +x ~/.claude/xcode-mcp.sh
