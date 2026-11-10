@@ -47,6 +47,7 @@ stage_claude_args() {
 
 stage_repo_files() {
   cp -R "$ROOT/skills" "$SHARED/skills"
+  cp "$ROOT/lib/xcode-marketplace.json" "$SHARED/xcode-marketplace.json"
   build_repos_lib > "$SHARED/repos-lib.sh"
   build_repos > "$SHARED/repos.sh"
   build_work_claude_md > "$SHARED/work-CLAUDE.md"
